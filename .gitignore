@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 .env
 .next
 node_modules
 
+=======
+\node_modules
+
+.env
+>>>>>>> ecf006bf205eb2fd643a4748f3c67f4ab23d35b7

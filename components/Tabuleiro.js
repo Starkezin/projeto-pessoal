@@ -28,7 +28,7 @@ export default function Tabuleiro({ dados }) {
           text-align: center;
           font-size: 50px;
           font-weight: 800;
-          grid-auto-rows: 990px;
+          grid-auto-rows: 920px;
         }
         .results div {
           padding: 10px;

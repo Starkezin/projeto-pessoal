@@ -29,5 +29,20 @@ export default function BingoBoard() {
     };
   }, []);
 
-  return <Tabuleiro dados={state} />;
+  return (
+    <>
+      <style>{` 
+        .navbar {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      `}</style>
+      <header className="navbar">
+        <h2>1º Rodada</h2>
+      </header>
+
+      <Tabuleiro dados={state} />
+    </>
+  );
 }

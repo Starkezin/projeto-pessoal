@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { columns } from "../utils/bingoData";
 import Tabuleiro from "../components/Tabuleiro";
 
 export default function AdminBoard() {
   const [state, setState] = useState(columns);
+  const [letra, setLetra] = useState(null);
+
   useEffect(() => {
     const jogoSalvo = localStorage.getItem("bingo:columns");
     if (jogoSalvo != null) {
@@ -27,44 +29,113 @@ export default function AdminBoard() {
     });
     setState(newState);
     localStorage.setItem("bingo:columns", JSON.stringify(newState));
+
+    setLetra(null);
   }
 
   function resetarJogo() {
-    setState(columns);
-    localStorage.setItem("bingo:columns", JSON.stringify(columns));
+    const confirmado = window.confirm(
+      "Tem certeza que deseja zerar o tabuleiro?",
+    );
+
+    if (confirmado) {
+      setState(columns);
+      localStorage.setItem("bingo:columns", JSON.stringify(columns));
+      setLetra(null);
+    }
   }
 
   const freeNumbers = Array.from({ length: 75 }, (_, index) => index + 1);
   return (
-    <div className="flex flex-row gap-8 p-6">
-      <div className="w-1/2">
-        <div className="grid grid-cols-5 gap-2 bg-blue-400 pt-6 rounded">
-          {freeNumbers.map((num) => {
-            const sorteado = state.some((coluna) =>
-              coluna.numbers.includes(num),
-            );
-            return (
-              <button
-                key={num}
-                disabled={sorteado}
-                onClick={() => addNumber(num)}
-                className={
-                  sorteado
-                    ? "bg-gray-400 text-gray-600 font-bold rounded w-full h-20 text-2xl block" // <-- Adicionado "block" aqui
-                    : "bg-blue-500 text-white font-bold rounded w-full h-20 text-2xl block hover:bg-blue-600" // <-- E "block" aqui também
-                }
-              >
-                {num}
+    <>
+      <style>
+        {`
+        .bingo-btn {
+          width: 100px;
+          height: 82px;
+          }
+        .layout-principal {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            padding: 1.5rem;
+            height: 100vh;
+            width: 100vw;
+            box-sizing: border-box;
+          }
+        .coluna-admin {
+            width: 30%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+          }
+        .coluna-tabuleiro {
+            width: 70%;
+            overflow-y: auto;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            }
+          
+          `}
+      </style>
+
+      <div className="layout-principal">
+        <div className="coluna-admin">
+          <div className="flex justify-between items-center">
+            <button onClick={resetarJogo}>Resetar</button>
+          </div>
+          {!letra ? (
+            <div className="grid grid-cols-5 gap-3 bg-blue-400 p-6 rounded">
+              {state.map((coluna) => (
+                <button
+                  key={coluna.label}
+                  onClick={() => setLetra(coluna.label)}
+                  className="bingo-btn"
+                >
+                  {coluna.label}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div>
+              <button onClick={() => setLetra(null)} className="bingo-btn">
+                Voltar para as letras
               </button>
-            );
-          })}
+
+              <div className="grid grid-cols-5 gap-2 bg-blue-400 p-4 rounded">
+                {(() => {
+                  const coluna = state.find((c) => c.label === letra);
+
+                  const numCol = Array.from(
+                    { length: coluna.max - coluna.min + 1 },
+                    (_, i) => coluna.min + i,
+                  );
+
+                  return numCol.map((num) => {
+                    const sorteado = coluna.numbers.includes(num);
+                    return (
+                      <button
+                        key={num}
+                        disabled={sorteado}
+                        onClick={() => addNumber(num)}
+                        className="bingo-btn"
+                      >
+                        {num}
+                      </button>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="coluna-tabuleiro">
+          <Tabuleiro dados={state} />
         </div>
       </div>
-      <div className="w-1/2">
-        <Tabuleiro dados={state} />
-      </div>
-
-      <button onClick={resetarJogo}>Resetar</button>
-    </div>
+    </>
   );
 }
